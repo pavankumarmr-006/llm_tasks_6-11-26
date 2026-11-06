@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Streaming Application</title>
+</head>
+
+<body>
+
+    <h2>LLM Streaming Output</h2>
+
+    <button onclick="startStreaming()">
+        Start Streaming
+    </button>
+
+    <p id="output"></p>
+
+    <script>
+
+    async function startStreaming() {
+
+        const output = document.getElementById("output");
+
+        output.innerText = "";
+
+        const response = await fetch(
+            "http://127.0.0.1:8000/chat/stream",
+            {
+                method: "POST"
+            }
+        );
+
+        const reader = response.body.getReader();
+
+        const decoder = new TextDecoder();
+
+        let buffer = "";
+
+        while (true) {
+
+            const {done, value} = await reader.read();
+
+            if (done) break;
+
+            buffer += decoder.decode(value, {
+                stream: true
+            });
+
+            let events = buffer.split("\n\n");
+
+            buffer = events.pop();
+
+            for (let event of events) {
+
+                if (event.trim() === "data: [DONE]") {
+                    return;
+                }
+
+                if (event.startsWith("data: ")) {
+
+                    let word = event.substring(6);
+
+                    output.innerText += word + " ";
+                }
+            }
+        }
+    }
+
+    </script>
+
+</body>
+</html>

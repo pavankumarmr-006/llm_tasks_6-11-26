@@ -1,0 +1,7 @@
+{
+    "model": "gpt-4o-mini",
+    "input_price": 0.15,
+    "output_price": 0.60,
+    "context_limit": 128000,
+    "daily_budget": 1.0
+}
